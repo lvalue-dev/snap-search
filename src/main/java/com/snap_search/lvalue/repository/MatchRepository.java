@@ -1,5 +1,6 @@
 package com.snap_search.lvalue.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.snap_search.lvalue.model.Match;
 
-public interface MatchRepository extends JpaRepository<Match, String> {
+public interface MatchRepository extends JpaRepository<Match, Long> {
 	List<Match> findByLeagueSeasonAndTeamsHomeIdOrLeagueSeasonAndTeamsAwayId(int season, int homeId, int seasonAgain,
 		int awayId);
 
@@ -27,4 +28,10 @@ public interface MatchRepository extends JpaRepository<Match, String> {
 	@Query("SELECT m.fixtureId FROM Match m WHERE m.fixtureStatusShort NOT IN ('FT', 'PST') AND (m.teamsHomeId = :teamId OR m.teamsAwayId = :teamId) AND m.fixtureDate < :currentDate")
 	List<Integer> findUpcomingFixtureIds(@Param("currentDate") String currentDate,
 		@Param("teamId") int teamId);
+
+	/** fixture_date 는 고정 포맷("yyyy-MM-dd HH:mm:ss UTC") 문자열이라 사전순 비교가 시간순 비교와 같다. */
+	@Query("SELECT m FROM Match m WHERE m.fixtureDate BETWEEN :from AND :to ORDER BY m.fixtureDate ASC")
+	List<Match> findByFixtureDateBetween(@Param("from") String from, @Param("to") String to);
+
+	List<Match> findByFixtureStatusShortIn(Collection<String> statuses);
 }

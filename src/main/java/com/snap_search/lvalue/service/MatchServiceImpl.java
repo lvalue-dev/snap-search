@@ -51,17 +51,15 @@ public class MatchServiceImpl implements MatchService {
 
 	@Override
 	public Optional<Match> getMatchById(Long fixtureId) {
-		return matchRepository.findById(String.valueOf(fixtureId));
+		return matchRepository.findById(fixtureId);
 	}
 
 	@Override
 	public Optional<Match> getUpcomingMatchByTeam(int teamId, int season) {
-		// 현재 한국 시간 (KST) 가져오기
-		LocalDateTime nowKst = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-		// 날짜 포맷팅 (DB 조회 시 비교 가능하도록 변환)
-		String nowKstStr = nowKst.format(FORMATTER);
+		// fixture_date 는 UTC 문자열이므로 비교 기준도 UTC 로 맞춘다 (기존 KST 비교는 최대 9시간 어긋났음)
+		String nowUtcStr = LocalDateTime.now(ZoneId.of("UTC")).format(FORMATTER);
 		// 다가오는 경기 리스트 조회 (오름차순 정렬됨)
-		List<Match> upcomingMatches = matchRepository.findUpcomingMatches(teamId, season, nowKstStr);
+		List<Match> upcomingMatches = matchRepository.findUpcomingMatches(teamId, season, nowUtcStr);
 		// 가장 가까운 경기 반환 (없으면 Optional.empty())
 		return upcomingMatches.stream().findFirst();
 	}
