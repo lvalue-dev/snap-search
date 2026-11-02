@@ -1,12 +1,14 @@
 package com.snap_search.lvalue.scheduler;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.snap_search.lvalue.service.ImageService;
 
 @Component
+@ConditionalOnProperty(prefix = "batch.images", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class ImageBatchScheduler {
 
 	@Autowired
