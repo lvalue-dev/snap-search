@@ -5,13 +5,19 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.snap_search.lvalue.repository.TeamRepository;
 import com.snap_search.lvalue.service.MatchService;
 
+/**
+ * API-Football 기반 레거시 배치. 무료 플랜은 현 시즌 조회가 막혀 있어 기본 비활성.
+ * 유료 플랜으로 올리면 batch.api-football.enabled=true 로 다시 켤 수 있다.
+ */
 @Component
+@ConditionalOnProperty(prefix = "batch.api-football", name = "enabled", havingValue = "true")
 public class MatchBatchScheduler {
 
 	private static final Logger logger = LoggerFactory.getLogger(MatchBatchScheduler.class);

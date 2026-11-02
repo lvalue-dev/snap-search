@@ -1,0 +1,65 @@
+{
+  "leagues": [{"id": "700", "name": "English Premier League", "slug": "eng.1",
+               "season": {"year": 2025, "startDate": "2025-08-01T04:00Z", "endDate": "2026-05-31T03:59Z"}}],
+  "events": [
+    {
+      "id": "740562", "date": "2025-11-01T15:00Z", "name": "Brighton & Hove Albion at Wolverhampton Wanderers",
+      "season": {"year": 2025, "slug": "2025-26"}, "week": {"number": 10},
+      "competitions": [{
+        "id": "740562",
+        "venue": {"fullName": "Molineux Stadium", "address": {"city": "Wolverhampton", "country": "England"}},
+        "competitors": [
+          {"id": "380", "homeAway": "home", "score": "1",
+           "team": {"id": "380", "displayName": "Wolverhampton Wanderers", "logo": "https://a.espncdn.com/i/teamlogos/soccer/500/380.png"}},
+          {"id": "331", "homeAway": "away", "score": "2",
+           "team": {"id": "331", "displayName": "Brighton & Hove Albion", "logos": [{"href": "https://a.espncdn.com/i/teamlogos/soccer/500/331.png"}]}}
+        ],
+        "details": [
+          {"type": {"id": "137", "text": "Goal"}, "clock": {"value": 1380, "displayValue": "23'"}, "team": {"id": "331"},
+           "scoringPlay": true, "redCard": false, "yellowCard": false, "penaltyKick": false, "ownGoal": false,
+           "athletesInvolved": [{"id": "245400", "displayName": "Danny Welbeck"}]},
+          {"type": {"id": "94", "text": "Yellow Card"}, "clock": {"value": 2100, "displayValue": "35'"}, "team": {"id": "380"},
+           "scoringPlay": false, "redCard": false, "yellowCard": true,
+           "athletesInvolved": [{"id": "1", "displayName": "Some Defender"}]},
+          {"type": {"id": "137", "text": "Penalty - Scored"}, "clock": {"value": 2820, "displayValue": "45'+2'"}, "team": {"id": "380"},
+           "scoringPlay": true, "penaltyKick": true,
+           "athletesInvolved": [{"id": "2", "displayName": "Jorgen Strand Larsen"}]},
+          {"type": {"id": "76", "text": "Substitution"}, "clock": {"value": 3600, "displayValue": "60'"}, "team": {"id": "331"},
+           "athletesInvolved": [{"id": "10", "displayName": "Player In"}, {"id": "11", "displayName": "Player Out"}]},
+          {"type": {"id": "137", "text": "Own Goal"}, "clock": {"value": 4020, "displayValue": "67'"}, "team": {"id": "331"},
+           "scoringPlay": true, "ownGoal": true,
+           "athletesInvolved": [{"id": "3", "displayName": "Unlucky Wolf"}]},
+          {"type": {"id": "0", "text": "Kickoff"}, "clock": {"value": 0, "displayValue": "0'"}, "team": {"id": "380"}}
+        ],
+        "status": {"clock": 4320.0, "displayClock": "72'", "period": 2,
+                   "type": {"id": "25", "name": "STATUS_SECOND_HALF", "state": "in", "completed": false, "shortDetail": "72'"}}
+      }]
+    },
+    {
+      "id": "740570", "date": "2025-11-02T14:00Z", "name": "Liverpool at Aston Villa",
+      "competitions": [{
+        "id": "740570",
+        "competitors": [
+          {"id": "362", "homeAway": "home", "score": "0", "team": {"id": "362", "displayName": "Aston Villa"}},
+          {"id": "364", "homeAway": "away", "score": "0", "team": {"id": "364", "displayName": "Liverpool"}}
+        ],
+        "details": [],
+        "status": {"clock": 0.0, "displayClock": "0'", "period": 0,
+                   "type": {"id": "1", "name": "STATUS_SCHEDULED", "state": "pre", "completed": false}}
+      }]
+    },
+    {
+      "id": "740550", "date": "2025-10-25T14:00Z", "name": "Arsenal at Chelsea",
+      "competitions": [{
+        "id": "740550",
+        "competitors": [
+          {"id": "363", "homeAway": "home", "score": "2", "team": {"id": "363", "displayName": "Chelsea"}},
+          {"id": "359", "homeAway": "away", "score": "2", "team": {"id": "359", "displayName": "Arsenal"}}
+        ],
+        "details": [],
+        "status": {"clock": 0.0, "displayClock": "90'+5'", "period": 2,
+                   "type": {"id": "28", "name": "STATUS_FULL_TIME", "state": "post", "completed": true, "shortDetail": "FT"}}
+      }]
+    }
+  ]
+}
