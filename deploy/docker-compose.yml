@@ -1,0 +1,97 @@
+# Snap-Search 홈 서버 구성
+# 사용법: cp .env.example .env && (값 채우기) && docker compose up -d
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: snap-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      TZ: UTC
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./initdb:/docker-entrypoint-initdb.d:ro   # mysqldump 결과(.sql)를 여기 두면 최초 기동 시 자동 import
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    image: ${BACKEND_IMAGE}
+    container_name: snap-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: home
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      API_FOOTBALL_KEY: ${API_FOOTBALL_KEY}
+      API_FOOTBALL_HOST: https://v3.football.api-sports.io
+      IMAGE_STORAGE_ROOT: /data/images
+      IMAGE_PUBLIC_BASE_URL: ${PUBLIC_URL}/images
+      JAVA_TOOL_OPTIONS: -Xms256m -Xmx768m -XX:+UseSerialGC
+      TZ: Asia/Seoul
+    volumes:
+      - images:/data/images
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+
+  frontend:
+    image: ${FRONTEND_IMAGE}
+    container_name: snap-frontend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${PUBLIC_URL}
+      PORT: 3000
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: snap-nginx
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - frontend
+    ports:
+      - "127.0.0.1:8088:80"   # cloudflared가 로컬에서 접속. 직접 포트포워딩할 거면 "80:80"으로
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - images:/srv/images:ro
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: snap-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - nginx
+    # Cloudflare Zero Trust 대시보드에서 터널 생성 → Public hostname: toomuchoffside.site → http://nginx:80
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: snap-watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${HOME}/.docker/config.json:/config.json:ro   # GHCR private 이미지면 docker login 후 필요
+    command: --label-enable --cleanup --interval 300
+
+volumes:
+  mysql-data:
+  images:
