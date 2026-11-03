@@ -92,6 +92,32 @@ services:
       - ${HOME}/.docker/config.json:/config.json:ro   # GHCR private 이미지면 docker login 후 필요
     command: --label-enable --cleanup --interval 300
 
+  # ---- ESPN 실시간 제공률/지연/정확도 측정기 (필요할 때만, profile: probe) ----
+  #   docker compose --profile probe run --rm probe            # 지금부터 PROBE_MINUTES 동안 수집 후 보고서 출력
+  #   docker compose --profile probe run --rm probe node /probe/probe.js --report /out/<파일>.jsonl
+  # 결과는 ./probe-out/ 에 jsonl 과 log 로 남는다. 경기 중에 돌려야 의미가 있다 (주말 밤 KST).
+  probe:
+    image: node:22-alpine
+    container_name: snap-probe
+    profiles: ["probe"]
+    restart: "no"
+    working_dir: /out
+    volumes:
+      - ../tools/espn-probe:/probe:ro
+      - ./probe-out:/out
+    environment:
+      TZ: Asia/Seoul
+      API_FOOTBALL_KEY: ${API_FOOTBALL_KEY:-}
+    command: >
+      sh -c 'STAMP=$$(date +%F-%H%M);
+        node /probe/probe.js
+        --leagues ${PROBE_LEAGUES:-eng.1,esp.1,ger.1,fra.1}
+        --interval ${PROBE_INTERVAL:-30}
+        --minutes ${PROBE_MINUTES:-120}
+        --out /out/probe-$$STAMP.jsonl
+        $${API_FOOTBALL_KEY:+--api-football-key $$API_FOOTBALL_KEY --af-interval 300}
+        2>&1 | tee /out/probe-$$STAMP.log'
+
 volumes:
   mysql-data:
   images:

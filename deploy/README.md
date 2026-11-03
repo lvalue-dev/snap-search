@@ -27,3 +27,19 @@ Docker Hub를 계속 쓸 거면 `.env`의 `*_IMAGE`만 바꾸면 됩니다.
 docker exec snap-mysql mysqldump -u root -p"$MYSQL_ROOT_PASSWORD" --single-transaction SNAP_SEARCH | gzip > backup/$(date +%F).sql.gz
 ```
 를 cron(매일 04:00)으로. 이미지 볼륨은 `docker run --rm -v snap-search_images:/src -v $PWD/backup:/dst alpine tar czf /dst/images.tgz -C /src .`
+
+## ESPN 실시간 품질 측정 (제공률·지연·정확도)
+경기가 진행 중인 시간(주말 밤 KST)에 홈 서버에서 실행합니다. 백엔드와 독립적이라 다른 서비스를 띄우지 않아도 됩니다.
+```
+cd deploy
+docker compose --profile probe run --rm probe               # 기본: 4개 리그, 30초 간격, 120분
+PROBE_MINUTES=240 docker compose --profile probe run --rm probe
+ls probe-out/                                                # probe-<날짜-시각>.jsonl / .log
+docker compose --profile probe run --rm probe node /probe/probe.js --report /out/probe-2026-11-07-2200.jsonl
+```
+`.env` 에 `API_FOOTBALL_KEY` 가 있으면 API-Football 무료 플랜의 `live=all` 과 스코어를 교차 검증합니다(5분 간격, 하루 100회 한도 내).
+
+매주 토·일 밤 22:00 KST 에 자동으로 돌리려면 호스트 crontab 에:
+```
+0 22 * * 6,0  cd /path/to/snap-search/deploy && docker compose --profile probe run --rm probe >/dev/null 2>&1
+```
